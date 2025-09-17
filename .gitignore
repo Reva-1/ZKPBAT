@@ -1,7 +1,69 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
+# ============================================================================
+# CONFIDENTIAL DOCUMENTS - NEVER COMMIT (Academic/Business Sensitive)
+# ============================================================================
+
+# Academic and Business Documents (Confidential)
+PHASE3_FINAL_REPORT.md
+PHASE3_SUBMISSION_PACKAGE.md
+ACADEMIC_PAPER_FOR_PUBLICATION.md
+ACADEMIC_PUBLICATION_WORKFLOW.md
+DEVFEST_BERLIN_2025_PROPOSAL.md
+ZERO_TRUST_AI_TECHNICAL_PAPER.md
+PROJECT_COMPLETE.md
+FINAL_IMPLEMENTATION_SUMMARY.md
+
+# Business Strategy Documents (Confidential)
+*PITCH_DECK*
+*BUSINESS_PLAN*
+*INVESTOR*
+*PITCH*
+*STARTUP*
+*LEAN_CANVAS*
+*COMPETITIVE_ANALYSIS*
+*DEMO_GUIDE*
+
+# Student/Academic Information (Personal)
+**/*student*
+**/*academic*
+**/*university*
+**/*grade*
+**/*submission*
+
+# ============================================================================
+# SENSITIVE CONFIGURATION & CREDENTIALS
+# ============================================================================
+
+# Environment Variables & Secrets
+.env*
+!.env.example
+*.key
+*.pem
+*.p12
+*.pfx
+config/secrets.json
+config/production.json
+
+# API Keys & Authentication
+**/api-keys/**
+**/certificates/**
+**/secrets/**
+jwt-secret*
+oauth-config*
+
+# Database Credentials
+database.config.js
+db-credentials*
+connection-strings*
+
+# ============================================================================
+# NODE.JS & DEVELOPMENT
+# ============================================================================
+
 # dependencies
-/node_modules
+node_modules/
+**/node_modules/
 /.pnp
 .pnp.*
 .yarn/*
@@ -22,7 +84,6 @@
 
 # misc
 .DS_Store
-*.pem
 
 # debug
 npm-debug.log*
@@ -30,12 +91,133 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# env files (can opt-in for committing if needed)
-.env*
-
 # vercel
 .vercel
 
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# ============================================================================
+# BACKEND & DATABASE
+# ============================================================================
+
+# Backend logs and data
+backend/logs/
+backend/uploads/
+backend/temp/
+
+# Database files
+*.sqlite
+*.sqlite3
+*.db
+*.db-journal
+prisma/dev.db*
+
+# ============================================================================
+# BLOCKCHAIN & SMART CONTRACTS
+# ============================================================================
+
+# Blockchain artifacts (keep source, not compiled)
+contracts/artifacts/
+contracts/cache/
+contracts/typechain/
+
+# Private keys and wallets
+blockchain/keys/
+blockchain/wallets/
+.secret
+mnemonic.txt
+
+# ============================================================================
+# LATEX & ACADEMIC PUBLISHING
+# ============================================================================
+
+# LaTeX auxiliary files
+latex/*.aux
+latex/*.log
+latex/*.out
+latex/*.toc
+latex/*.bbl
+latex/*.blg
+latex/*.synctex.gz
+latex/*.fdb_latexmk
+latex/*.fls
+
+# Generated PDFs (keep source, not output)
+latex/*.pdf
+latex/figures/*.pdf
+
+# ============================================================================
+# DOCUMENTATION EXCLUSIONS
+# ============================================================================
+
+# Sensitive documentation
+docs/internal/
+docs/confidential/
+docs/academic/
+docs/business/
+
+# Meeting notes and planning
+MEETING_NOTES.md
+STRATEGY_*.md
+PLANNING_*.md
+
+# ============================================================================
+# TESTING & QA RESULTS
+# ============================================================================
+
+# Test results with sensitive data
+test-results/
+pentest-results/
+security-audit-*
+vulnerability-scan-*
+benchmark-results/
+
+# ============================================================================
+# GENERAL EXCLUSIONS
+# ============================================================================
+
+# Any file with sensitive keywords in name
+*confidential*
+*private*
+*internal*
+*secret*
+*credential*
+
+# Backup files
+*.backup
+*.bak
+*.old
+archive/
+backups/
+
+# IDE files
+.vscode/settings.json
+.vscode/launch.json
+.idea/
+
+# OS files
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# ============================================================================
+# ALLOW CERTAIN PUBLIC FILES (Override above rules)
+# ============================================================================
+
+# Allow example configs
+!.env.example
+!config.example.json
+!docker-compose.example.yml
+
+# Allow public documentation
+!README.md
+!INSTALLATION.md
+!TECHNICAL_DOCUMENTATION.md
+!ADVANCED_ARCHITECTURE.md
+!docs/README.md
+!docs/API.md

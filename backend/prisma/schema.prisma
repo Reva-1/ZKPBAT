@@ -1,0 +1,231 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  USER
+  ADMIN
+  POLICY_MANAGER
+  AUDITOR
+}
+
+enum PolicyStatus {
+  DRAFT
+  ACTIVE
+  INACTIVE
+  ARCHIVED
+}
+
+enum PolicyCategory {
+  PRIVACY
+  SECURITY
+  COMPLIANCE
+  HR
+  IT
+  FINANCE
+  OTHER
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  password     String
+  firstName    String
+  lastName     String
+  role         UserRole @default(USER)
+  organization String?
+  isActive     Boolean  @default(true)
+  lastLogin    DateTime?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Relations
+  authoredPolicies Policy[]               @relation("PolicyAuthor")
+  policyVersions   PolicyVersion[]        @relation("VersionCreator")
+  assignments      PolicyAssignment[]
+  auditLogs        AuditLog[]
+  behaviorProfile  UserBehaviorProfile?
+  securityIncidents SecurityIncident[]
+
+  @@map("users")
+}
+
+model Policy {
+  id             String         @id @default(cuid())
+  title          String
+  description    String
+  content        String
+  category       PolicyCategory
+  status         PolicyStatus   @default(DRAFT)
+  version        Int            @default(1)
+  effectiveDate  DateTime
+  expirationDate DateTime?
+  tags           String[]
+  
+  // Compliance tracking fields
+  complianceFramework String?    // SOX, GDPR, HIPAA, ISO27001, etc.
+  lastReviewed   DateTime?      // Last compliance review date
+  
+  // Blockchain fields
+  blockchainTxHash String?
+  blockchainAddress String?
+  
+  authorId       String
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  // Relations
+  author         User                  @relation("PolicyAuthor", fields: [authorId], references: [id])
+  versions       PolicyVersion[]
+  assignments    PolicyAssignment[]
+  auditLogs      AuditLog[]
+
+  @@map("policies")
+}
+
+model PolicyVersion {
+  id          String   @id @default(cuid())
+  policyId    String
+  version     Int
+  content     String
+  changes     String
+  createdById String
+  createdAt   DateTime @default(now())
+
+  // Relations
+  policy      Policy   @relation(fields: [policyId], references: [id], onDelete: Cascade)
+  createdBy   User     @relation("VersionCreator", fields: [createdById], references: [id])
+
+  @@unique([policyId, version])
+  @@map("policy_versions")
+}
+
+model PolicyAssignment {
+  id         String   @id @default(cuid())
+  policyId   String
+  userId     String
+  assignedAt DateTime @default(now())
+  
+  // Acknowledgment tracking
+  acknowledgedAt DateTime?
+  
+  // Relations
+  policy     Policy   @relation(fields: [policyId], references: [id], onDelete: Cascade)
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([policyId, userId])
+  @@map("policy_assignments")
+}
+
+model AuditLog {
+  id          String   @id @default(cuid())
+  action      String   // CREATE, UPDATE, DELETE, VIEW, LOGIN, LOGOUT, etc.
+  entityType  String   // POLICY, USER, etc.
+  entityId    String
+  userId      String?
+  details     Json?
+  ipAddress   String?
+  userAgent   String?
+  location    String?  // Geographic location
+  deviceId    String?  // Device identifier
+  riskScore   Int?     // AI-calculated risk score
+  threatLevel String?  // LOW, MEDIUM, HIGH, CRITICAL
+  metadata    Json?    // Additional metadata for AI analysis
+  createdAt   DateTime @default(now())
+
+  // Relations
+  user        User?    @relation(fields: [userId], references: [id])
+  policy      Policy?  @relation(fields: [entityId], references: [id])
+
+  @@map("audit_logs")
+}
+
+model BlockchainTransaction {
+  id          String   @id @default(cuid())
+  txHash      String   @unique
+  blockNumber Int?
+  status      String   // PENDING, CONFIRMED, FAILED
+  gasUsed     String?
+  gasPrice    String?
+  entityType  String   // POLICY, USER_ACTION, etc.
+  entityId    String
+  data        Json?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("blockchain_transactions")
+}
+
+// AI Security Tables
+model UserBehaviorProfile {
+  id               String   @id @default(cuid())
+  userId           String   @unique
+  avgLoginTime     Float    // Average hour of day for login (0-23.99)
+  commonLocations  String[] // Most frequent locations
+  typicalDevices   String[] // Device fingerprints
+  riskScore        Int      @default(50) // Base risk score (0-100)
+  lastAnalyzed     DateTime @default(now())
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  // Relations
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_behavior_profiles")
+}
+
+model ThreatIntelligence {
+  id          String   @id @default(cuid())
+  type        String   // MALICIOUS_IP, SUSPICIOUS_USER_AGENT, etc.
+  indicator   String   // The actual threat indicator
+  severity    String   // LOW, MEDIUM, HIGH, CRITICAL
+  description String
+  source      String   // Source of threat intelligence
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("threat_intelligence")
+}
+
+model SecurityIncident {
+  id              String   @id @default(cuid())
+  userId          String?
+  incidentType    String   // ANOMALY_DETECTION, POLICY_VIOLATION, etc.
+  severity        String   // LOW, MEDIUM, HIGH, CRITICAL
+  status          String   // OPEN, INVESTIGATING, RESOLVED, CLOSED
+  description     String
+  indicators      String[] // List of threat indicators
+  recommendations String[] // AI recommendations
+  confidence      Float    // AI confidence score (0-1)
+  resolvedAt      DateTime?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relations
+  user            User?    @relation(fields: [userId], references: [id])
+
+  @@map("security_incidents")
+}
+
+model PolicyRecommendation {
+  id             String   @id @default(cuid())
+  policyId       String   
+  recommendationType String // UPDATE, CREATE, DELETE
+  urgency        String   // LOW, MEDIUM, HIGH
+  reason         String
+  suggestedChanges Json   // AI-suggested policy changes
+  status         String   @default("PENDING") // PENDING, APPROVED, REJECTED
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@map("policy_recommendations")
+}
