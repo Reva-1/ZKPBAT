@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+Screenshot 2025-09-17 at 10.44.08 PM
 # zKPBAT - Zero Trust Policy Administration System
 
 A modern enterprise security platform implementing Zero Trust architecture with AI-powered threat detection and quantum-resistant cryptography.
